@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { useState, useEffect } from 'react';
 import {
-  Typography, Paper, Avatar, Button, FormControl, Input, InputLabel,
+  Typography, Paper, Avatar, Button, CssBaseline, TextField, Grid,
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -15,34 +15,31 @@ import { useFirebase } from '../../Firebase';
 import SnackbarWrapper from '../Snackbars';
 
 const styles = theme => ({
-  main: {
-    width: 'auto',
-    display: 'block',
-    marginLeft: theme.spacing(3),
-    marginRight: theme.spacing(3),
-    [theme.breakpoints.up(400 + theme.spacing(6))]: {
-      width: 400,
-      marginLeft: 'auto',
-      marginRight: 'auto',
-    },
+  root: {
+    height: '100vh',
+  },
+  image: {
+    backgroundImage: 'url(https://source.unsplash.com/featured/?cctv)',
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
   },
   paper: {
-    marginTop: theme.spacing(8),
+    margin: theme.spacing(8, 4),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: theme.spacing(2, 3, 3),
   },
   avatar: {
     margin: theme.spacing(1),
     backgroundColor: theme.palette.secondary.main,
   },
   form: {
-    width: '100%',
+    width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
   submit: {
-    marginTop: theme.spacing(3),
+    margin: theme.spacing(3, 0, 2),
   },
 });
 
@@ -68,7 +65,7 @@ function Login(props) {
     const searchParams = queryString.parse(searchUrl);
     if (searchParams.from_dashboard) {
       setWarningOpen(true);
-      setWarningMessage('Please Login Again');
+      setWarningMessage('Для начала авторизуйтесь!');
     }
   }, [history.location.search]);
 
@@ -112,75 +109,75 @@ function Login(props) {
   }
 
   return (
-    <main className={classes.main}>
-      <Paper className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Sign In
-        </Typography>
-        <form
-          className={classes.form}
-          onSubmit={e => e.preventDefault() && false}
-        >
-          <FormControl
-            margin="normal"
-            required
-            fullWidth
-            error={errorType === 'email'}
-          >
-            <InputLabel htmlFor="email">Email Address</InputLabel>
-            <Input
+
+    <Grid container component="main" className={classes.root}>
+      <CssBaseline />
+      {/* eslint-disable-next-line react/prop-types */}
+      <Grid item xs={false} sm={4} md={7} className={classes.image} />
+      <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        <div className={classes.paper}>
+          <Avatar className={classes.avatar}>
+            <LockOutlinedIcon />
+          </Avatar>
+          <Typography component="h1" variant="h5">
+              Авторизация
+          </Typography>
+          <form className={classes.form} onSubmit={e => e.preventDefault() && false}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
               id="email"
-              type="text"
+              label="Email адрес"
               name="email"
-              autoComplete="off"
+              autoComplete="email"
               autoFocus
               value={email}
               onChange={e => setEmail(e.target.value)}
+              error={errorType === 'email'}
             />
-          </FormControl>
-          <FormControl
-            margin="normal"
-            required
-            fullWidth
-            error={errorType === 'password'}
-          >
-            <InputLabel htmlFor="password">Password</InputLabel>
-            <Input
-              id="password"
-              type="password"
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
               name="password"
-              autoComplete="off"
+              label="Пароль"
+              type="password"
+              id="password"
+              autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              error={errorType === 'password'}
             />
-          </FormControl>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            onClick={login}
-            className={classes.submit}
-            disabled={isInvalid}
-          >
-            Sign In
-          </Button>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="secondary"
-            component={Link}
-            to={ROUTES.REGISTER}
-            className={classes.submit}
-          >
-            Register
-          </Button>
-        </form>
-      </Paper>
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="primary"
+              className={classes.submit}
+              onClick={login}
+              disabled={isInvalid}
+            >
+                Войти
+            </Button>
+            <Grid container>
+              <Grid item xs>
+                {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                <Link to={ROUTES.FORGOT_PASSWORD} variant="body2">
+                    Забыли пароль?
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link to={ROUTES.REGISTER} variant="body2">
+                  <b>Регистрация новой уч.записи</b>
+                </Link>
+              </Grid>
+            </Grid>
+          </form>
+        </div>
+      </Grid>
       <SnackbarWrapper
         type="error"
         isOpen={errorOpen}
@@ -193,13 +190,14 @@ function Login(props) {
         message={warningMessage}
         handleClose={onWarningClose}
       />
-    </main>
+    </Grid>
   );
 }
 
 Login.propTypes = {
   classes: PropTypes.shape({
-    main: PropTypes.string.isRequired,
+    root: PropTypes.string.isRequired,
+    image: PropTypes.string.isRequired,
     paper: PropTypes.string.isRequired,
     avatar: PropTypes.string.isRequired,
     form: PropTypes.string.isRequired,

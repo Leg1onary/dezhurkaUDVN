@@ -57,7 +57,7 @@ function HomePage(props) {
           <VerifiedUserOutlined />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Hello Guest!
+          Привет, гость!
         </Typography>
         <Button
           type="submit"
@@ -68,7 +68,7 @@ function HomePage(props) {
           to={ROUTES.REGISTER}
           className={classes.submit}
         >
-          Register
+          Регистрация
         </Button>
         <Button
           type="submit"
@@ -79,7 +79,7 @@ function HomePage(props) {
           to={ROUTES.LOGIN}
           className={classes.submit}
         >
-          Login
+          Авторизация
         </Button>
         <Button
           type="submit"
@@ -90,7 +90,7 @@ function HomePage(props) {
           to={ROUTES.DASHBOARD}
           className={classes.submit}
         >
-          Dashboard
+          Панель управления
         </Button>
       </Paper>
 

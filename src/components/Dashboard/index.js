@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
-  Typography, Paper, Avatar, CircularProgress, Button,
+  Typography, Paper, Avatar, Button,
 } from '@material-ui/core';
 import VerifiedUserOutlined from '@material-ui/icons/VerifiedUserOutlined';
 import withStyles from '@material-ui/core/styles/withStyles';
@@ -43,7 +43,6 @@ function Dashboard(props) {
   const { classes, history } = props;
 
   const firebase = useFirebase();
-  const [quote, setQuote] = useState('');
   const user = firebase.getCurrentUser();
 
   useEffect(() => {
@@ -54,11 +53,7 @@ function Dashboard(props) {
         pathname: ROUTES.LOGIN,
         search: '?from_dashboard=1',
       });
-      // Dashboard doesn't require cleanup so return undefined not null
-      return;
     }
-
-    firebase.getCurrentUserQuote().then(setQuote);
   }, [firebase, history, user]);
 
   async function logout() {
@@ -73,11 +68,8 @@ function Dashboard(props) {
           <VerifiedUserOutlined />
         </Avatar>
         <Typography component="h1" variant="h5">
-          {/* Hello { firebase.getCurrentUser().displayName } */}
-        </Typography>
-        <Typography component="h1" variant="h5">
-          {'Your quote: '}
-          {quote ? `"${quote}"` : <CircularProgress size={20} />}
+          Hello,
+          { firebase.getCurrentUser().displayName }
         </Typography>
         <Button
           type="submit"
@@ -87,7 +79,7 @@ function Dashboard(props) {
           onClick={logout}
           className={classes.submit}
         >
-          Logout
+          Выйти
         </Button>
       </Paper>
     </main>

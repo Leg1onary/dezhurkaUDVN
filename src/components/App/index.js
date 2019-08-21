@@ -8,7 +8,9 @@ import HomePage from '../HomePage';
 import Login from '../Login';
 import Register from '../Register';
 import Dashboard from '../Dashboard';
-// Resets CSS across browswers
+import ResetPassword from '../ResetPassword';
+
+// Resets CSS across browsers
 
 import * as ROUTES from '../../constants/routes';
 import { useFirebase } from '../../Firebase';
@@ -34,6 +36,7 @@ export default function App() {
           <Route exact path={ROUTES.LOGIN} component={Login} />
           <Route exact path={ROUTES.REGISTER} component={Register} />
           <Route exact path={ROUTES.DASHBOARD} component={Dashboard} />
+          <Route exact path={ROUTES.FORGOT_PASSWORD} component={ResetPassword} />
         </Switch>
       </Router>
     </MuiThemeProvider>

@@ -2,27 +2,27 @@ function errors(error) {
   switch (error.code) {
     case 'auth/user-not-found':
       return {
-        message: 'Email address invalid',
+        message: 'Пользователь не найден',
         type: 'email',
       };
     case 'auth/wrong-password':
       return {
-        message: 'Password incorrect',
+        message: 'Некорректный пароль',
         type: 'password',
       };
     case 'auth/email-already-in-use':
       return {
-        message: error.message,
+        message: 'Email уже используется',
         type: 'email',
       };
     case 'auth/weak-password':
       return {
-        message: error.message,
+        message: 'Пароль менее 6-ти символов',
         type: 'password',
       };
     case 'auth/invalid-email':
       return {
-        message: error.message,
+        message: 'Некорректный email',
         type: 'email',
       };
     default:

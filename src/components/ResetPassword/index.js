@@ -14,7 +14,6 @@ import { useFirebase } from '../../Firebase';
 import SnackbarWrapper from '../Snackbars';
 
 const styles = theme => ({
-
   root: {
     height: '100vh',
   },
@@ -43,25 +42,19 @@ const styles = theme => ({
   },
 });
 
-function Register(props) {
+function ResetPassword(props) {
   const { classes, history } = props;
 
-  const [name, setName] = useState('');
+  const firebase = useFirebase();
+  const user = firebase.getCurrentUser();
+
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [errorType, setErrorType] = useState('');
 
-  const isInvalid = (password === '')
-  || (passwordConfirm === '')
-  || (email === '')
-  || (name === '');
-  const isInvalidPasswordMatch = (password !== passwordConfirm);
+  const isInvalid = email === '';
 
-  const firebase = useFirebase();
-  const user = firebase.getCurrentUser();
 
   if (user) {
     history.replace(ROUTES.DASHBOARD);
@@ -80,17 +73,11 @@ function Register(props) {
     setErrorOpen(false);
   }
 
-  async function onRegister() {
+  async function onResetPassword() {
     resetErrors();
 
-    if (isInvalidPasswordMatch) {
-      setErrorOpen(true);
-      setErrorMessage('Пароли не совпадают');
-      setErrorType('password');
-      return;
-    }
     try {
-      await firebase.doCreateUserWithEmailAndPassword(name, email, password);
+      await firebase.doPasswordReset(email);
       history.replace(ROUTES.DASHBOARD);
     } catch (error) {
       setErrorOpen(true);
@@ -101,7 +88,7 @@ function Register(props) {
   }
 
   return (
-  // eslint-disable-next-line react/prop-types
+
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
       {/* eslint-disable-next-line react/prop-types */}
@@ -112,22 +99,9 @@ function Register(props) {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-              Регистрация
+                        Восстановление пароля
           </Typography>
           <form className={classes.form} onSubmit={e => e.preventDefault() && false}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="name"
-              label="ФИО"
-              name="name"
-              autoComplete="off"
-              autoFocus
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
             <TextField
               variant="outlined"
               margin="normal"
@@ -136,38 +110,11 @@ function Register(props) {
               id="email"
               label="Email адрес"
               name="email"
-              autoComplete="off"
+              autoComplete="email"
+              autoFocus
               value={email}
               onChange={e => setEmail(e.target.value)}
               error={errorType === 'email'}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Пароль"
-              type="password"
-              id="password"
-              autoComplete="off"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              error={errorType === 'password'}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="passwordConfirm"
-              label="Подтверждение пароля"
-              type="password"
-              id="passwordConfirm"
-              autoComplete="off"
-              value={passwordConfirm}
-              onChange={e => setPasswordConfirm(e.target.value)}
-              error={errorType === 'password'}
             />
             <Button
               type="submit"
@@ -175,16 +122,21 @@ function Register(props) {
               variant="contained"
               color="primary"
               className={classes.submit}
-              onClick={onRegister}
+              onClick={onResetPassword}
               disabled={isInvalid}
             >
-                Регистрация
+                            Восстановить
             </Button>
             <Grid container>
-              <Grid item>
+              <Grid item xs>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <Link to={ROUTES.LOGIN} variant="body2">
-                    Вернуться к авторизации
+                                    Вернуться к авторизации
+                </Link>
+              </Grid>
+              <Grid item>
+                <Link to={ROUTES.REGISTER} variant="body2">
+                  <b>Регистрация новой уч.записи</b>
                 </Link>
               </Grid>
             </Grid>
@@ -201,7 +153,7 @@ function Register(props) {
   );
 }
 
-Register.propTypes = {
+ResetPassword.propTypes = {
   classes: PropTypes.shape({
     root: PropTypes.string.isRequired,
     image: PropTypes.string.isRequired,
@@ -211,8 +163,11 @@ Register.propTypes = {
     submit: PropTypes.string.isRequired,
   }).isRequired,
   history: PropTypes.shape({
+    location: PropTypes.shape({
+      search: PropTypes.string,
+    }).isRequired,
     replace: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-export default withRouter(withStyles(styles)(Register));
+export default withRouter(withStyles(styles)(ResetPassword));
