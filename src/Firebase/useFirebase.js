@@ -3,8 +3,7 @@ import FirebaseContext from './context';
 
 
 function useFirebase() {
-  const firebase = useContext(FirebaseContext);
-  return firebase;
+  return useContext(FirebaseContext);
 }
 
 export default useFirebase;

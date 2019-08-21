@@ -44,5 +44,7 @@
     "eslint-plugin-react": "^7.14.2"
   },
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": "https://github.com/Leg1onary/dezhurkaUDVN.git",
+  "author": "Sergey <shserg94@gmail.com>"
 }

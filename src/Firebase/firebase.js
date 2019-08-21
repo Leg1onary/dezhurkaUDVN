@@ -3,13 +3,13 @@ import 'firebase/auth';
 import 'firebase/database';
 
 const devConfig = {
-  apiKey: process.env.REACT_APP_API_KEY,
-  authDomain: process.env.REACT_APP_AUTH_DOMAIN,
-  databaseURL: process.env.REACT_APP_DATABASE_URL,
-  projectId: process.env.REACT_APP_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_APP_ID,
+  apiKey: 'AIzaSyCz41uyDyH5_mTqaUK4VtXNPxmVqwDaXXg',
+  authDomain: 'react-dezh36.firebaseapp.com',
+  databaseURL: 'https://react-dezh36.firebaseio.com',
+  projectId: 'react-dezh36',
+  storageBucket: '',
+  messagingSenderId: '152027097033',
+  appId: '1:152027097033:web:9d6b7af54999cad8',
 };
 
 // Create Separate config and database for Prod
