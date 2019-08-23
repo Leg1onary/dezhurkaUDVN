@@ -17,6 +17,9 @@ class Firebase {
     app.initializeApp(config);
     this.auth = app.auth();
     this.db = app.database();
+
+    this.googleProvider = new app.auth.GoogleAuthProvider();
+    this.githubProvider = new app.auth.GithubAuthProvider();
   }
 
   async doCreateUserWithEmailAndPassword(name, email, password) {
@@ -38,6 +41,14 @@ class Firebase {
 
   doSignInWithEmailAndPassword(email, password) {
     return this.auth.signInWithEmailAndPassword(email, password);
+  }
+
+  doSignInWithGoogle() {
+    return this.auth.signInWithPopup(this.googleProvider);
+  }
+
+  doSignInWithGitHub() {
+    return this.auth.signInWithPopup(this.githubProvider);
   }
 
   doSignOut() {

@@ -13,6 +13,8 @@ import ERRORS from '../../constants/errors';
 import { useFirebase } from '../../Firebase';
 import SnackbarWrapper from '../Snackbars';
 
+import '../../styles/authPages.css';
+
 const styles = theme => ({
 
   root: {
@@ -183,9 +185,14 @@ function Register(props) {
             <Grid container>
               <Grid item>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                <Link to={ROUTES.LOGIN} variant="body2">
-                    Вернуться к авторизации
-                </Link>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                >
+                  <Link className="auth-button-nav" to={ROUTES.LOGIN} variant="body2">
+                    Авторизация
+                  </Link>
+                </Button>
               </Grid>
             </Grid>
           </form>

@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-filename-extension */
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   Typography, Paper, Avatar, Button,
 } from '@material-ui/core';
@@ -44,6 +44,17 @@ function HomePage(props) {
 
   const firebase = useFirebase();
   const user = firebase.getCurrentUser();
+
+  useEffect(() => {
+    if (!user) {
+      // not logged in
+      // history.replace(ROUTES.LOGIN)
+      history.push({
+        pathname: ROUTES.LOGIN,
+        search: '?from_home=1',
+      });
+    }
+  }, [firebase, history, user]);
 
   if (user) {
     history.replace(ROUTES.DASHBOARD);
@@ -106,6 +117,7 @@ HomePage.propTypes = {
     submit: PropTypes.string.isRequired,
   }).isRequired,
   history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
     replace: PropTypes.func.isRequired,
   }).isRequired,
 };

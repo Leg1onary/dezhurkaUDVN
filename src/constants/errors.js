@@ -25,6 +25,21 @@ function errors(error) {
         message: 'Некорректный email',
         type: 'email',
       };
+    case 'auth/popup-closed-by-user':
+      return {
+        message: 'Операция прервана пользователем',
+        type: 'user'
+      };
+    case 'auth/cancelled-popup-request':
+      return {
+        message: 'Попытка двойной авторизации',
+        type: 'user'
+      };
+    case 'auth/account-exists-with-different-credential':
+      return {
+        message: 'Email уже использовался для авторизации',
+        type: 'email'
+      };
     default:
       return {
         message: error.message || 'An error occurred',

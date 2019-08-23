@@ -1,15 +1,15 @@
 /* eslint-disable react/jsx-filename-extension */
 import React, { useEffect } from 'react';
 import {
-  Typography, Paper, Avatar, Button,
+  Typography, Paper, Button,
 } from '@material-ui/core';
-import VerifiedUserOutlined from '@material-ui/icons/VerifiedUserOutlined';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import * as ROUTES from '../../constants/routes';
 import { useFirebase } from '../../Firebase';
+import NavBar from "../NavBar";
 
 const styles = theme => ({
   main: {
@@ -62,27 +62,24 @@ function Dashboard(props) {
   }
 
   return (
-    <main className={classes.main}>
-      <Paper className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <VerifiedUserOutlined />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Hello,
-          { firebase.getCurrentUser().displayName }
-        </Typography>
+      <div id="Dashboard">
+        <NavBar/>
         <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="secondary"
-          onClick={logout}
-          className={classes.submit}
+            type="submit"
+            variant="contained"
+            color="secondary"
+            onClick={logout}
+            className={classes.submit}
         >
           Выйти
         </Button>
-      </Paper>
-    </main>
+
+          <Paper className={classes.paper}>
+          <Typography component="h1" variant="h5">
+            This place for ToDo list
+          </Typography>
+        </Paper>
+      </div>
   );
 }
 

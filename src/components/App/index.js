@@ -4,16 +4,18 @@ import './styles.scss';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { CssBaseline, CircularProgress } from '@material-ui/core';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+
 import HomePage from '../HomePage';
 import Login from '../Login';
 import Register from '../Register';
 import Dashboard from '../Dashboard';
 import ResetPassword from '../ResetPassword';
-
-// Resets CSS across browsers
+import NotFoundPage from "../NotFound";
 
 import * as ROUTES from '../../constants/routes';
 import { useFirebase } from '../../Firebase';
+import CmsPage from "../CMS";
+import RelaxPage from "../RelaxPage";
 
 const theme = createMuiTheme();
 
@@ -37,6 +39,9 @@ export default function App() {
           <Route exact path={ROUTES.REGISTER} component={Register} />
           <Route exact path={ROUTES.DASHBOARD} component={Dashboard} />
           <Route exact path={ROUTES.FORGOT_PASSWORD} component={ResetPassword} />
+          <Route exact path={ROUTES.CMS} component={CmsPage} />
+          <Route exact path={ROUTES.RELAX} component={RelaxPage} />
+          <Route component={NotFoundPage} />
         </Switch>
       </Router>
     </MuiThemeProvider>

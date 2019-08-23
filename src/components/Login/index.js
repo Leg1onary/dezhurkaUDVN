@@ -13,6 +13,11 @@ import * as ROUTES from '../../constants/routes';
 import ERRORS from '../../constants/errors';
 import { useFirebase } from '../../Firebase';
 import SnackbarWrapper from '../Snackbars';
+/* Styles */
+import '../../styles/authPages.css';
+/* Icons */
+import * as googleIcon from '../../images/googleIcon.png';
+import * as githubIcon from '../../images/githubIcon.png';
 
 const styles = theme => ({
   root: {
@@ -22,7 +27,7 @@ const styles = theme => ({
     backgroundImage: 'url(https://source.unsplash.com/featured/?cctv)',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'cover',
-    backgroundPosition: 'center',
+    backgroundPosition: 'right',
   },
   paper: {
     margin: theme.spacing(8, 4),
@@ -41,7 +46,16 @@ const styles = theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  socialBlock: {
+    justifyContent: 'center',
+    marginTop: '10px'
+  },
+  socialImg: {
+    height: '30px',
+    marginRight: '10px'
+  }
 });
+
 
 function Login(props) {
   const { classes, history } = props;
@@ -63,7 +77,7 @@ function Login(props) {
   useEffect(() => {
     const searchUrl = history.location.search;
     const searchParams = queryString.parse(searchUrl);
-    if (searchParams.from_dashboard) {
+    if (searchParams.from_dashboard || searchParams.from_home) {
       setWarningOpen(true);
       setWarningMessage('Для начала авторизуйтесь!');
     }
@@ -108,6 +122,22 @@ function Login(props) {
     }
   }
 
+  async function SocialLogin(provider) {
+    resetErrors();
+    try {
+      if (provider === 'google') { await firebase.doSignInWithGoogle()}
+      else if (provider === 'github') { await firebase.doSignInWithGitHub()}
+      history.replace(ROUTES.DASHBOARD);
+    } catch (error) {
+      setErrorOpen(true);
+      const formattedError = ERRORS(error);
+      setErrorMessage(formattedError.message);
+      setErrorType(formattedError.type);
+      console.log(error);
+    }
+  }
+
+
   return (
 
     <Grid container component="main" className={classes.root}>
@@ -122,6 +152,31 @@ function Login(props) {
           <Typography component="h1" variant="h5">
               Авторизация
           </Typography>
+          <Grid container className={classes.socialBlock}>
+            <Grid item>
+              <Button
+                  onClick={() => SocialLogin('google')}
+                  className="googleBtn"
+                  variant="contained"
+                  style={{backgroundColor:"white", marginRight:"5px"}}
+              >
+                <img src={googleIcon} alt="google icon" className={classes.socialImg}/>
+                Google
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                  onClick={() => SocialLogin('github')}
+                  className="googleBtn"
+                  variant="contained"
+                  style={{backgroundColor:"white"}}
+              >
+                <img src={githubIcon} alt="github icon" className={classes.socialImg}/>
+                GitHub
+              </Button>
+            </Grid>
+          </Grid>
+
           <form className={classes.form} onSubmit={e => e.preventDefault() && false}>
             <TextField
               variant="outlined"
@@ -165,14 +220,24 @@ function Login(props) {
             <Grid container>
               <Grid item xs>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                <Link to={ROUTES.FORGOT_PASSWORD} variant="body2">
+                <Button
+                  variant="contained"
+                  color="secondary"
+                >
+                  <Link className="auth-button-nav" to={ROUTES.FORGOT_PASSWORD} variant="body2">
                     Забыли пароль?
-                </Link>
+                  </Link>
+                </Button>
               </Grid>
               <Grid item>
-                <Link to={ROUTES.REGISTER} variant="body2">
-                  <b>Регистрация новой уч.записи</b>
-                </Link>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                >
+                  <Link className="auth-button-nav" to={ROUTES.REGISTER}>
+                    Регистрация
+                  </Link>
+                </Button>
               </Grid>
             </Grid>
           </form>
@@ -202,6 +267,8 @@ Login.propTypes = {
     avatar: PropTypes.string.isRequired,
     form: PropTypes.string.isRequired,
     submit: PropTypes.string.isRequired,
+    socialBlock: PropTypes.string.isRequired,
+    socialImg: PropTypes.string.isRequired
   }).isRequired,
   history: PropTypes.shape({
     location: PropTypes.shape({

@@ -13,6 +13,8 @@ import ERRORS from '../../constants/errors';
 import { useFirebase } from '../../Firebase';
 import SnackbarWrapper from '../Snackbars';
 
+import '../../styles/authPages.css';
+
 const styles = theme => ({
   root: {
     height: '100vh',
@@ -130,14 +132,24 @@ function ResetPassword(props) {
             <Grid container>
               <Grid item xs>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-                <Link to={ROUTES.LOGIN} variant="body2">
-                                    Вернуться к авторизации
-                </Link>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                >
+                  <Link className="auth-button-nav" to={ROUTES.LOGIN} variant="body2">
+                  Авторизация
+                  </Link>
+                </Button>
               </Grid>
               <Grid item>
-                <Link to={ROUTES.REGISTER} variant="body2">
-                  <b>Регистрация новой уч.записи</b>
-                </Link>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                >
+                  <Link className="auth-button-nav" to={ROUTES.REGISTER} variant="body2">
+                    <b>Регистрация</b>
+                  </Link>
+                </Button>
               </Grid>
             </Grid>
           </form>
