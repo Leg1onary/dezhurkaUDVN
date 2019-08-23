@@ -1,22 +1,25 @@
 /* eslint-disable react/jsx-filename-extension */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography, Paper, Avatar, Button, CssBaseline, TextField, Grid,
 } from '@material-ui/core';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { Link, withRouter } from 'react-router-dom';
+import queryString from 'query-string';
 import PropTypes from 'prop-types';
 
-import * as ROUTES from '../../constants/routes';
-import ERRORS from '../../constants/errors';
-import { useFirebase } from '../../Firebase';
-import SnackbarWrapper from '../Snackbars';
-
-import '../../styles/authPages.css';
+import * as ROUTES from '../../../constants/routes';
+import ERRORS from '../../../constants/errors';
+import { useFirebase } from '../../../Firebase';
+import SnackbarWrapper from '../../Snackbars';
+/* Styles */
+import '../../../styles/authPages.css';
+/* Icons */
+import * as googleIcon from '../../../images/googleIcon.png';
+import * as githubIcon from '../../../images/githubIcon.png';
 
 const styles = theme => ({
-
   root: {
     height: '100vh',
   },
@@ -24,7 +27,7 @@ const styles = theme => ({
     backgroundImage: 'url(https://source.unsplash.com/featured/?cctv)',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'cover',
-    backgroundPosition: 'center',
+    backgroundPosition: 'right',
   },
   paper: {
     margin: theme.spacing(8, 4),
@@ -43,34 +46,49 @@ const styles = theme => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  socialBlock: {
+    justifyContent: 'center',
+    marginTop: '10px'
+  },
+  socialImg: {
+    height: '30px',
+    marginRight: '10px'
+  }
 });
 
-function Register(props) {
+
+function Login(props) {
   const { classes, history } = props;
-
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordConfirm, setPasswordConfirm] = useState('');
-  const [errorOpen, setErrorOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [errorType, setErrorType] = useState('');
-
-  const isInvalid = (password === '')
-  || (passwordConfirm === '')
-  || (email === '')
-  || (name === '');
-  const isInvalidPasswordMatch = (password !== passwordConfirm);
 
   const firebase = useFirebase();
   const user = firebase.getCurrentUser();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorType, setErrorType] = useState('');
+  const [warningOpen, setWarningOpen] = useState(false);
+  const [warningMessage, setWarningMessage] = useState('');
+
+  const isInvalid = password === '' || email === '';
+
+
+  useEffect(() => {
+    const searchUrl = history.location.search;
+    const searchParams = queryString.parse(searchUrl);
+    if (searchParams.from_dashboard || searchParams.from_home) {
+      setWarningOpen(true);
+      setWarningMessage('Для начала авторизуйтесь!');
+    }
+  }, [history.location.search]);
 
   if (user) {
     history.replace(ROUTES.DASHBOARD);
     return null;
   }
 
-  function onClose(event, reason) {
+  function onErrorClose(event, reason) {
     if (reason === 'clickaway') {
       return;
     }
@@ -78,21 +96,23 @@ function Register(props) {
     setErrorOpen(false);
   }
 
-  function resetErrors() {
-    setErrorOpen(false);
-  }
-
-  async function onRegister() {
-    resetErrors();
-
-    if (isInvalidPasswordMatch) {
-      setErrorOpen(true);
-      setErrorMessage('Пароли не совпадают');
-      setErrorType('password');
+  function onWarningClose(event, reason) {
+    if (reason === 'clickaway') {
       return;
     }
+
+    setWarningOpen(false);
+  }
+
+  function resetErrors() {
+    setErrorOpen(false);
+    setWarningOpen(false);
+  }
+
+  async function login() {
+    resetErrors();
     try {
-      await firebase.doCreateUserWithEmailAndPassword(name, email, password);
+      await firebase.doSignInWithEmailAndPassword(email, password);
       history.replace(ROUTES.DASHBOARD);
     } catch (error) {
       setErrorOpen(true);
@@ -102,8 +122,24 @@ function Register(props) {
     }
   }
 
+  async function SocialLogin(provider) {
+    resetErrors();
+    try {
+      if (provider === 'google') { await firebase.doSignInWithGoogle()}
+      else if (provider === 'github') { await firebase.doSignInWithGitHub()}
+      history.replace(ROUTES.DASHBOARD);
+    } catch (error) {
+      setErrorOpen(true);
+      const formattedError = ERRORS(error);
+      setErrorMessage(formattedError.message);
+      setErrorType(formattedError.type);
+      console.log(error);
+    }
+  }
+
+
   return (
-  // eslint-disable-next-line react/prop-types
+
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
       {/* eslint-disable-next-line react/prop-types */}
@@ -114,22 +150,34 @@ function Register(props) {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-              Регистрация
+              Авторизация
           </Typography>
+          <Grid container className={classes.socialBlock}>
+            <Grid item>
+              <Button
+                  onClick={() => SocialLogin('google')}
+                  className="googleBtn"
+                  variant="contained"
+                  style={{backgroundColor:"white", marginRight:"5px"}}
+              >
+                <img src={googleIcon} alt="google icon" className={classes.socialImg}/>
+                Google
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                  onClick={() => SocialLogin('github')}
+                  className="googleBtn"
+                  variant="contained"
+                  style={{backgroundColor:"white"}}
+              >
+                <img src={githubIcon} alt="github icon" className={classes.socialImg}/>
+                GitHub
+              </Button>
+            </Grid>
+          </Grid>
+
           <form className={classes.form} onSubmit={e => e.preventDefault() && false}>
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="name"
-              label="ФИО"
-              name="name"
-              autoComplete="off"
-              autoFocus
-              value={name}
-              onChange={e => setName(e.target.value)}
-            />
             <TextField
               variant="outlined"
               margin="normal"
@@ -138,7 +186,8 @@ function Register(props) {
               id="email"
               label="Email адрес"
               name="email"
-              autoComplete="off"
+              autoComplete="email"
+              autoFocus
               value={email}
               onChange={e => setEmail(e.target.value)}
               error={errorType === 'email'}
@@ -152,23 +201,9 @@ function Register(props) {
               label="Пароль"
               type="password"
               id="password"
-              autoComplete="off"
+              autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              error={errorType === 'password'}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="passwordConfirm"
-              label="Подтверждение пароля"
-              type="password"
-              id="passwordConfirm"
-              autoComplete="off"
-              value={passwordConfirm}
-              onChange={e => setPasswordConfirm(e.target.value)}
               error={errorType === 'password'}
             />
             <Button
@@ -177,20 +212,30 @@ function Register(props) {
               variant="contained"
               color="primary"
               className={classes.submit}
-              onClick={onRegister}
+              onClick={login}
               disabled={isInvalid}
             >
-                Регистрация
+                Войти
             </Button>
             <Grid container>
-              <Grid item>
+              <Grid item xs>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <Button
                   variant="contained"
                   color="secondary"
                 >
-                  <Link className="auth-button-nav" to={ROUTES.LOGIN} variant="body2">
-                    Авторизация
+                  <Link className="auth-button-nav" to={ROUTES.FORGOT_PASSWORD} variant="body2">
+                    Забыли пароль?
+                  </Link>
+                </Button>
+              </Grid>
+              <Grid item>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                >
+                  <Link className="auth-button-nav" to={ROUTES.REGISTER}>
+                    Регистрация
                   </Link>
                 </Button>
               </Grid>
@@ -202,13 +247,19 @@ function Register(props) {
         type="error"
         isOpen={errorOpen}
         message={errorMessage}
-        handleClose={onClose}
+        handleClose={onErrorClose}
+      />
+      <SnackbarWrapper
+        type="warning"
+        isOpen={warningOpen}
+        message={warningMessage}
+        handleClose={onWarningClose}
       />
     </Grid>
   );
 }
 
-Register.propTypes = {
+Login.propTypes = {
   classes: PropTypes.shape({
     root: PropTypes.string.isRequired,
     image: PropTypes.string.isRequired,
@@ -216,10 +267,15 @@ Register.propTypes = {
     avatar: PropTypes.string.isRequired,
     form: PropTypes.string.isRequired,
     submit: PropTypes.string.isRequired,
+    socialBlock: PropTypes.string.isRequired,
+    socialImg: PropTypes.string.isRequired
   }).isRequired,
   history: PropTypes.shape({
+    location: PropTypes.shape({
+      search: PropTypes.string,
+    }).isRequired,
     replace: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-export default withRouter(withStyles(styles)(Register));
+export default withRouter(withStyles(styles)(Login));

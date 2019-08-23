@@ -8,14 +8,15 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import { Link, withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import * as ROUTES from '../../constants/routes';
-import ERRORS from '../../constants/errors';
-import { useFirebase } from '../../Firebase';
-import SnackbarWrapper from '../Snackbars';
+import * as ROUTES from '../../../constants/routes';
+import ERRORS from '../../../constants/errors';
+import { useFirebase } from '../../../Firebase';
+import SnackbarWrapper from '../../Snackbars';
 
-import '../../styles/authPages.css';
+import '../../../styles/authPages.css';
 
 const styles = theme => ({
+
   root: {
     height: '100vh',
   },
@@ -44,19 +45,25 @@ const styles = theme => ({
   },
 });
 
-function ResetPassword(props) {
+function Register(props) {
   const { classes, history } = props;
 
-  const firebase = useFirebase();
-  const user = firebase.getCurrentUser();
-
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirm, setPasswordConfirm] = useState('');
   const [errorOpen, setErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [errorType, setErrorType] = useState('');
 
-  const isInvalid = email === '';
+  const isInvalid = (password === '')
+  || (passwordConfirm === '')
+  || (email === '')
+  || (name === '');
+  const isInvalidPasswordMatch = (password !== passwordConfirm);
 
+  const firebase = useFirebase();
+  const user = firebase.getCurrentUser();
 
   if (user) {
     history.replace(ROUTES.DASHBOARD);
@@ -75,11 +82,17 @@ function ResetPassword(props) {
     setErrorOpen(false);
   }
 
-  async function onResetPassword() {
+  async function onRegister() {
     resetErrors();
 
+    if (isInvalidPasswordMatch) {
+      setErrorOpen(true);
+      setErrorMessage('Пароли не совпадают');
+      setErrorType('password');
+      return;
+    }
     try {
-      await firebase.doPasswordReset(email);
+      await firebase.doCreateUserWithEmailAndPassword(name, email, password);
       history.replace(ROUTES.DASHBOARD);
     } catch (error) {
       setErrorOpen(true);
@@ -90,7 +103,7 @@ function ResetPassword(props) {
   }
 
   return (
-
+  // eslint-disable-next-line react/prop-types
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
       {/* eslint-disable-next-line react/prop-types */}
@@ -101,9 +114,22 @@ function ResetPassword(props) {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-                        Восстановление пароля
+              Регистрация
           </Typography>
           <form className={classes.form} onSubmit={e => e.preventDefault() && false}>
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              id="name"
+              label="ФИО"
+              name="name"
+              autoComplete="off"
+              autoFocus
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
             <TextField
               variant="outlined"
               margin="normal"
@@ -112,11 +138,38 @@ function ResetPassword(props) {
               id="email"
               label="Email адрес"
               name="email"
-              autoComplete="email"
-              autoFocus
+              autoComplete="off"
               value={email}
               onChange={e => setEmail(e.target.value)}
               error={errorType === 'email'}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="password"
+              label="Пароль"
+              type="password"
+              id="password"
+              autoComplete="off"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              error={errorType === 'password'}
+            />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              name="passwordConfirm"
+              label="Подтверждение пароля"
+              type="password"
+              id="passwordConfirm"
+              autoComplete="off"
+              value={passwordConfirm}
+              onChange={e => setPasswordConfirm(e.target.value)}
+              error={errorType === 'password'}
             />
             <Button
               type="submit"
@@ -124,30 +177,20 @@ function ResetPassword(props) {
               variant="contained"
               color="primary"
               className={classes.submit}
-              onClick={onResetPassword}
+              onClick={onRegister}
               disabled={isInvalid}
             >
-                            Восстановить
+                Регистрация
             </Button>
             <Grid container>
-              <Grid item xs>
+              <Grid item>
                 {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
                 <Button
                   variant="contained"
                   color="secondary"
                 >
                   <Link className="auth-button-nav" to={ROUTES.LOGIN} variant="body2">
-                  Авторизация
-                  </Link>
-                </Button>
-              </Grid>
-              <Grid item>
-                <Button
-                  variant="contained"
-                  color="secondary"
-                >
-                  <Link className="auth-button-nav" to={ROUTES.REGISTER} variant="body2">
-                    <b>Регистрация</b>
+                    Авторизация
                   </Link>
                 </Button>
               </Grid>
@@ -165,7 +208,7 @@ function ResetPassword(props) {
   );
 }
 
-ResetPassword.propTypes = {
+Register.propTypes = {
   classes: PropTypes.shape({
     root: PropTypes.string.isRequired,
     image: PropTypes.string.isRequired,
@@ -175,11 +218,8 @@ ResetPassword.propTypes = {
     submit: PropTypes.string.isRequired,
   }).isRequired,
   history: PropTypes.shape({
-    location: PropTypes.shape({
-      search: PropTypes.string,
-    }).isRequired,
     replace: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-export default withRouter(withStyles(styles)(ResetPassword));
+export default withRouter(withStyles(styles)(Register));

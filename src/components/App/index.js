@@ -6,16 +6,17 @@ import { CssBaseline, CircularProgress } from '@material-ui/core';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import HomePage from '../HomePage';
-import Login from '../Login';
-import Register from '../Register';
+import Login from '../Auth/Login';
+import Register from '../Auth/Register';
 import Dashboard from '../Dashboard';
-import ResetPassword from '../ResetPassword';
+import ResetPassword from '../Auth/ResetPassword';
 import NotFoundPage from "../NotFound";
 
 import * as ROUTES from '../../constants/routes';
 import { useFirebase } from '../../Firebase';
 import CmsPage from "../CMS";
 import RelaxPage from "../RelaxPage";
+import UserProfile from "../Auth/Profile";
 
 const theme = createMuiTheme();
 
@@ -41,6 +42,7 @@ export default function App() {
           <Route exact path={ROUTES.FORGOT_PASSWORD} component={ResetPassword} />
           <Route exact path={ROUTES.CMS} component={CmsPage} />
           <Route exact path={ROUTES.RELAX} component={RelaxPage} />
+          <Route exact path="/profile" component={UserProfile} />
           <Route component={NotFoundPage} />
         </Switch>
       </Router>
