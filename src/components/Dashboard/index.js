@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-filename-extension */
-import React, { useEffect } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
-  Typography, Paper, Button,
+  Typography, Paper, Button, Table, TableBody, TableCell, TableHead, TableRow
 } from '@material-ui/core';
 import withStyles from '@material-ui/core/styles/withStyles';
 import { withRouter } from 'react-router-dom';
@@ -10,6 +10,7 @@ import PropTypes from 'prop-types';
 import * as ROUTES from '../../constants/routes';
 import { useFirebase } from '../../Firebase';
 import NavBar from "../NavBar";
+import TextField from "@material-ui/core/TextField";
 
 const styles = theme => ({
   main: {
@@ -24,7 +25,7 @@ const styles = theme => ({
     },
   },
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(2),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -37,6 +38,15 @@ const styles = theme => ({
   submit: {
     marginTop: theme.spacing(3),
   },
+  container: {
+    display: 'flex',
+    flexWrap: 'nowrap',
+    width: '100%'
+  },
+  textField: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+  },
 });
 
 function Dashboard(props) {
@@ -44,6 +54,12 @@ function Dashboard(props) {
 
   const firebase = useFirebase();
   const user = firebase.getCurrentUser();
+  const [todos, setTodos] = useState([{
+    title: '',
+    dateAdd: '',
+    isComplete: false,
+    userAdd: user.email
+  }]);
 
   useEffect(() => {
     if (!user) {
@@ -61,6 +77,15 @@ function Dashboard(props) {
     history.push(ROUTES.HOME);
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useMemo(() => {
+    firebase.todos().onSnapshot(query => {
+      const data = [];
+      query.forEach(d => data.push({...d.data(), docId: d.id}));
+      setTodos(data)
+    });
+  },[firebase]);
+
   return (
       <div id="Dashboard">
         <NavBar/>
@@ -76,9 +101,39 @@ function Dashboard(props) {
 
           <Paper className={classes.paper}>
           <Typography component="h1" variant="h5">
-            This place for ToDo list
+            Список задач
           </Typography>
+            <form className={classes.container} noValidate autoComplete="off">
+              <TextField
+                  id="outlined-full-width"
+                  label="Создать новую задачу..."
+                  style={{ margin: 8 }}
+                  fullWidth
+                  margin="normal"
+                  variant="outlined"
+                  multiline
+              />
+              <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  style={{ margin: 8 }}
+              >
+                Создать
+              </Button>
+            </form>
         </Paper>
+        <Table    >
+          <TableHead>
+            <TableRow>
+              <TableCell>Текст задачи</TableCell>
+              <TableCell align="right">User Add</TableCell>
+              <TableCell align="right">is Complete</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+          </TableBody>
+        </Table>
       </div>
   );
 }
@@ -89,6 +144,8 @@ Dashboard.propTypes = {
     paper: PropTypes.string.isRequired,
     avatar: PropTypes.string.isRequired,
     submit: PropTypes.string.isRequired,
+    container: PropTypes.string.isRequired,
+    textField: PropTypes.string.isRequired,
   }).isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,

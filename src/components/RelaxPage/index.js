@@ -6,6 +6,7 @@ function RelaxPage() {
     return (
         <div>
             <NavBar/>
+            Relax page
         </div>
     );
 }

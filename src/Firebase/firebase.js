@@ -1,6 +1,6 @@
 import app from 'firebase/app';
 import 'firebase/auth';
-import 'firebase/database';
+import 'firebase/firestore'
 
 const config = {
   apiKey: 'AIzaSyCz41uyDyH5_mTqaUK4VtXNPxmVqwDaXXg',
@@ -16,12 +16,20 @@ class Firebase {
   constructor() {
     app.initializeApp(config);
     this.auth = app.auth();
-    this.db = app.database();
+    this.store = app.firestore();
 
+    /* Providers */
     this.googleProvider = new app.auth.GoogleAuthProvider();
     this.githubProvider = new app.auth.GithubAuthProvider();
   }
 
+  /* Firestore*/
+  users = () => this.store.collection('users');
+  todos = () => this.store.collection('todos');
+  cmsHistory = () => this.store.collection('cmsHistory');
+  /*********/
+
+  /*Firebase Auth*/
   async doCreateUserWithEmailAndPassword(name, email, password) {
     await this.auth.createUserWithEmailAndPassword(email, password);
     return this.auth.currentUser.updateProfile({
@@ -43,12 +51,12 @@ class Firebase {
     return this.auth.signInWithEmailAndPassword(email, password);
   }
 
-  doSignInWithGoogle() {
-    return this.auth.signInWithPopup(this.googleProvider);
-  }
-
-  doSignInWithGitHub() {
-    return this.auth.signInWithPopup(this.githubProvider);
+  doSignInWithProvider(provider) {
+    switch (provider) {
+      case 'google': return this.auth.signInWithPopup(this.googleProvider);
+      case 'github': return this.auth.signInWithPopup(this.githubProvider);
+      default : return null;
+    }
   }
 
   doSignOut() {
@@ -62,11 +70,7 @@ class Firebase {
   doPasswordUpdate(password) {
     return this.auth.currentUser.updatePassword(password);
   }
-
-  // *** User API ***
-  user = uid => this.db.ref(`users/${uid}`);
-
-  users = () => this.db.ref('users');
 }
+
 
 export default Firebase;

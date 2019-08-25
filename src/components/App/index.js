@@ -17,6 +17,7 @@ import { useFirebase } from '../../Firebase';
 import CmsPage from "../CMS";
 import RelaxPage from "../RelaxPage";
 import UserProfile from "../Auth/Profile";
+import PrivateRoute from "../../constants/PrivateRoute";
 
 const theme = createMuiTheme();
 
@@ -40,9 +41,9 @@ export default function App() {
           <Route exact path={ROUTES.REGISTER} component={Register} />
           <Route exact path={ROUTES.DASHBOARD} component={Dashboard} />
           <Route exact path={ROUTES.FORGOT_PASSWORD} component={ResetPassword} />
-          <Route exact path={ROUTES.CMS} component={CmsPage} />
-          <Route exact path={ROUTES.RELAX} component={RelaxPage} />
-          <Route exact path="/profile" component={UserProfile} />
+          <PrivateRoute exact path={ROUTES.CMS} component={CmsPage} />
+          <PrivateRoute exact path={ROUTES.RELAX} component={RelaxPage} />
+          <PrivateRoute exact path="/profile" component={UserProfile} />
           <Route component={NotFoundPage} />
         </Switch>
       </Router>

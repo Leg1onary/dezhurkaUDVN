@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -8,7 +8,6 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import PropTypes from "prop-types";
 import withStyles from "@material-ui/core/styles/withStyles";
-import NavBar from "../NavBar";
 
 import { ReactDadata } from 'react-dadata';
 const API_KEY_DADATA = '06bb5a438e1971e7f6c99d0e32cccc7b11c6da91';

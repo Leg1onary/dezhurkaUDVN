@@ -1,5 +1,5 @@
 import React from 'react';
-import { fade, makeStyles } from '@material-ui/core/styles';
+import { fade } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
@@ -14,9 +14,11 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import PropTypes from "prop-types";
+import withStyles from "@material-ui/core/styles/withStyles";
+import {withRouter} from "react-router-dom";
 
-
-const useStyles = makeStyles(theme => ({
+const styles = theme => ({
     grow: {
         flexGrow: 1,
     },
@@ -76,10 +78,12 @@ const useStyles = makeStyles(theme => ({
             display: 'none',
         },
     },
-}));
+});
 
-function NavBar() {
-    const classes = useStyles();
+function NavBar(props) {
+
+    const { classes } = props;
+
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
@@ -103,7 +107,7 @@ function NavBar() {
         setMobileMoreAnchorEl(event.currentTarget);
     }
 
-    function Logout() {
+    async function Logout() {
         handleMenuClose();
     }
 
@@ -234,4 +238,21 @@ function NavBar() {
     );
 }
 
-export default NavBar;
+NavBar.propTypes = {
+    classes: PropTypes.shape({
+        grow: PropTypes.string.isRequired,
+        menuButton: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+        search: PropTypes.string.isRequired,
+        searchIcon: PropTypes.string.isRequired,
+        inputRoot: PropTypes.string.isRequired,
+        inputInput: PropTypes.string.isRequired,
+        sectionDesktop: PropTypes.string.isRequired,
+        sectionMobile: PropTypes.string.isRequired,
+    }).isRequired,
+    history: PropTypes.shape({
+        push: PropTypes.func.isRequired,
+    }).isRequired,
+};
+
+export default withRouter(withStyles(styles)(NavBar));

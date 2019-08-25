@@ -125,15 +125,13 @@ function Login(props) {
   async function SocialLogin(provider) {
     resetErrors();
     try {
-      if (provider === 'google') { await firebase.doSignInWithGoogle()}
-      else if (provider === 'github') { await firebase.doSignInWithGitHub()}
+      await firebase.doSignInWithProvider(provider);
       history.replace(ROUTES.DASHBOARD);
     } catch (error) {
       setErrorOpen(true);
       const formattedError = ERRORS(error);
       setErrorMessage(formattedError.message);
       setErrorType(formattedError.type);
-      console.log(error);
     }
   }
 
