@@ -27,7 +27,7 @@ const styles = theme => ({
     backgroundImage: 'url(https://source.unsplash.com/featured/?cctv)',
     backgroundRepeat: 'no-repeat',
     backgroundSize: 'cover',
-    backgroundPosition: 'right',
+    backgroundPosition: 'center',
   },
   paper: {
     margin: theme.spacing(8, 4),

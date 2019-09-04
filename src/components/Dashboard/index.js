@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-filename-extension */
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Typography, Paper, Button, Table, TableBody, TableCell, TableHead, TableRow
 } from '@material-ui/core';
@@ -11,6 +11,8 @@ import * as ROUTES from '../../constants/routes';
 import { useFirebase } from '../../Firebase';
 import NavBar from "../NavBar";
 import TextField from "@material-ui/core/TextField";
+import DeleteForever from "@material-ui/icons/DeleteForever";
+import firebase from "firebase";
 
 const styles = theme => ({
   main: {
@@ -52,14 +54,9 @@ const styles = theme => ({
 function Dashboard(props) {
   const { classes, history } = props;
 
-  const firebase = useFirebase();
-  const user = firebase.getCurrentUser();
-  const [todos, setTodos] = useState([{
-    title: '',
-    dateAdd: '',
-    isComplete: false,
-    userAdd: user.email
-  }]);
+  const useFB = useFirebase();
+  const user = useFB.getCurrentUser();
+  const [todoTitle, setTodoTitle] = useState('');
 
   useEffect(() => {
     if (!user) {
@@ -70,35 +67,49 @@ function Dashboard(props) {
         search: '?from_dashboard=1',
       });
     }
-  }, [firebase, history, user]);
+  }, [useFB, history, user]);
 
-  async function logout() {
-    await firebase.doSignOut();
-    history.push(ROUTES.HOME);
+  function useTodos() {
+    const [todoList, setTodoList] = useState([]);
+    useEffect(() => {
+      const unsub = firebase
+          .firestore()
+          .collection('todos')
+          .orderBy('dateAdd', 'desc')
+          .onSnapshot((snapshot) => {
+            const newTodos = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data()
+            }));
+            setTodoList(newTodos)
+          });
+      return () => unsub();
+    }, []);
+    return todoList
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useMemo(() => {
-    firebase.todos().onSnapshot(query => {
-      const data = [];
-      query.forEach(d => data.push({...d.data(), docId: d.id}));
-      setTodos(data)
-    });
-  },[firebase]);
+  async function addTodo(title, user) {
+    try {
+      await useFB.doAddTodo(title, user);
+      setTodoTitle('')
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.log(error)
+    }
+  }
 
+  async function deleteTodo(key) {
+      useFB.doDeleteTodo(key)
+  }
+
+  async function ChangeStatusTodo(key, status) {
+      useFB.doChangeStatusTodo(key, status);
+  }
+
+  const Todos = useTodos();
   return (
       <div id="Dashboard">
         <NavBar/>
-        <Button
-            type="submit"
-            variant="contained"
-            color="secondary"
-            onClick={logout}
-            className={classes.submit}
-        >
-          Выйти
-        </Button>
-
           <Paper className={classes.paper}>
           <Typography component="h1" variant="h5">
             Список задач
@@ -112,26 +123,50 @@ function Dashboard(props) {
                   margin="normal"
                   variant="outlined"
                   multiline
+                  value={todoTitle}
+                  onChange={e => setTodoTitle(e.target.value)}
               />
               <Button
-                  type="submit"
                   variant="contained"
                   color="primary"
                   style={{ margin: 8 }}
+                  onClick={() => addTodo(todoTitle, user.email)}
               >
                 Создать
               </Button>
             </form>
         </Paper>
-        <Table    >
+        <Table>
           <TableHead>
             <TableRow>
               <TableCell>Текст задачи</TableCell>
-              <TableCell align="right">User Add</TableCell>
-              <TableCell align="right">is Complete</TableCell>
+              <TableCell align="right">Дата</TableCell>
+              <TableCell align="right">Пользователь</TableCell>
+              <TableCell align="right">Статус</TableCell>
+                <TableCell align="right">Удалить</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
+            {Todos.map(todo => (
+                <TableRow key={todo.id} style={(todo.isComplete) ? {backgroundColor: "#c3ffc3"}: {}}>
+                  <TableCell component="th" scope="row">
+                    {todo.title}
+                  </TableCell>
+                  <TableCell align="right">{todo.dateAdd}</TableCell>
+                  <TableCell align="right">{todo.user}</TableCell>
+                  <TableCell align="right">
+                    {todo.isComplete ?
+                        <Button variant="contained" color="primary" onClick={() => ChangeStatusTodo(todo.id, false)} style={{backgroundColor :'green'}}>Выполнено</Button> :
+                        <Button variant="contained" color="primary" onClick={() => ChangeStatusTodo(todo.id, true)} style={{backgroundColor :'red'}}>В работе</Button>
+                    }
+                  </TableCell>
+                    <TableCell align="right">
+                      <Button variant="contained" color="secondary" onClick={() => deleteTodo(todo.id)}>
+                        <DeleteForever />
+                      </Button>
+                    </TableCell>
+                </TableRow>
+            ))}
           </TableBody>
         </Table>
       </div>

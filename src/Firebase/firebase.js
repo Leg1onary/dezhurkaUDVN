@@ -1,6 +1,9 @@
 import app from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/firestore'
+import "moment";
+
+const moment = require('moment');
 
 const config = {
   apiKey: 'AIzaSyCz41uyDyH5_mTqaUK4VtXNPxmVqwDaXXg',
@@ -22,12 +25,6 @@ class Firebase {
     this.googleProvider = new app.auth.GoogleAuthProvider();
     this.githubProvider = new app.auth.GithubAuthProvider();
   }
-
-  /* Firestore*/
-  users = () => this.store.collection('users');
-  todos = () => this.store.collection('todos');
-  cmsHistory = () => this.store.collection('cmsHistory');
-  /*********/
 
   /*Firebase Auth*/
   async doCreateUserWithEmailAndPassword(name, email, password) {
@@ -67,8 +64,44 @@ class Firebase {
     return this.auth.sendPasswordResetEmail(email);
   }
 
-  doPasswordUpdate(password) {
-    return this.auth.currentUser.updatePassword(password);
+  /*Firestore*/
+
+  users = () => this.store.collection('users');
+  cmsHistory = () => this.store.collection('cmsHistory');
+
+  doAddTodo(title, user){
+    this.store.collection("todos").add({
+      title: title,
+      user: user,
+      isComplete: false,
+      dateAdd: moment().format("HH:mm DD/MM/YYYY")
+    })
+        .then(function(docRef) {
+          // eslint-disable-next-line no-console
+          console.log("Документ добавлен с ID: ", docRef.id);
+        })
+        .catch(function(error) {
+          // eslint-disable-next-line no-console
+          console.error("Ошибка добавления документа: ", error);
+        });
+  }
+  doDeleteTodo(key) {
+    this.store.collection("todos").doc(key).delete().then(function() {
+      // eslint-disable-next-line no-console
+      console.log("Документ успешно удален!");
+    }).catch(function(error) {
+      // eslint-disable-next-line no-console
+      console.error("Ошибка удаления документа: ", error);
+    });
+  }
+  doChangeStatusTodo(key, status) {
+    this.store.collection("todos").doc(key).update({isComplete: status}).then(function() {
+      // eslint-disable-next-line no-console
+      console.log("Статус успешно изменен!");
+    }).catch(function(error) {
+      // eslint-disable-next-line no-console
+      console.log("Ошибка изменения статуса: ", error);
+    });
   }
 }
 
