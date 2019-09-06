@@ -13,6 +13,8 @@ import TextField from "@material-ui/core/TextField";
 import DeleteForever from "@material-ui/icons/DeleteForever";
 import firebase from "firebase";
 
+import * as notActiveTasks from '../../images/notTaskActive.png';
+
 const styles = theme => ({
   main: {
     width: 'auto',
@@ -47,6 +49,13 @@ const styles = theme => ({
   textField: {
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
+  },
+  image: {
+    backgroundRepeat: 'no-repeat',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    maxWidth: '100%',
+    maxHeight: '100%',
   },
 });
 
@@ -125,39 +134,49 @@ function Dashboard(props) {
               </Button>
             </form>
         </Paper>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Текст задачи</TableCell>
-              <TableCell align="right">Дата</TableCell>
-              <TableCell align="right">Пользователь</TableCell>
-              <TableCell align="right">Статус</TableCell>
-                <TableCell align="right">Удалить</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Todos.map(todo => (
-                <TableRow key={todo.id} style={(todo.isComplete) ? {backgroundColor: "#c3ffc3"}: {}}>
-                  <TableCell component="th" scope="row">
-                    {todo.title}
-                  </TableCell>
-                  <TableCell align="right">{todo.dateAdd}</TableCell>
-                  <TableCell align="right">{todo.user}</TableCell>
-                  <TableCell align="right">
-                    {todo.isComplete ?
-                        <Button variant="contained" color="primary" onClick={() => ChangeStatusTodo(todo.id, false)} style={{backgroundColor :'green'}}>Выполнено</Button> :
-                        <Button variant="contained" color="primary" onClick={() => ChangeStatusTodo(todo.id, true)} style={{backgroundColor :'red'}}>В работе</Button>
-                    }
-                  </TableCell>
-                    <TableCell align="right">
-                      <Button variant="contained" color="secondary" onClick={() => deleteTodo(todo.id)}>
-                        <DeleteForever />
-                      </Button>
-                    </TableCell>
+        {Todos.length > 0 ?
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Текст задачи</TableCell>
+                  <TableCell align="right">Дата</TableCell>
+                  <TableCell align="right">Пользователь</TableCell>
+                  <TableCell align="right">Статус</TableCell>
+                  <TableCell align="right">Удалить</TableCell>
                 </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+              </TableHead>
+              <TableBody>
+                {Todos.map(todo => (
+                    <TableRow key={todo.id} style={(todo.isComplete) ? {backgroundColor: "#c3ffc3"} : {}}>
+                      <TableCell component="th" scope="row">
+                        {todo.title}
+                      </TableCell>
+                      <TableCell align="right">{todo.dateAdd}</TableCell>
+                      <TableCell align="right">{todo.user}</TableCell>
+                      <TableCell align="right">
+                        {todo.isComplete ?
+                            <Button variant="contained" color="primary" onClick={() => ChangeStatusTodo(todo.id, false)}
+                                    style={{backgroundColor: 'green'}}>Выполнено</Button> :
+                            <Button variant="contained" color="primary" onClick={() => ChangeStatusTodo(todo.id, true)}
+                                    style={{backgroundColor: 'red'}}>В работе</Button>
+                        }
+                      </TableCell>
+                      <TableCell align="right">
+                        <Button variant="contained" color="secondary" onClick={() => deleteTodo(todo.id)}>
+                          <DeleteForever/>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                ))}
+              </TableBody>
+            </Table> :
+            <div id="AllTasksComplete">
+              <h2 style={{textAlign:'center', marginTop:'20px', fontStyle:'italic'}}>Нет актуальных задач :)</h2>
+              <div id="ImgAllTasksComplete" style={{position: 'fixed', bottom: '-10px', width: '100%', textAlign: 'center'}} >
+                <img className={classes.image} src={notActiveTasks} alt="NotActiveTasksImage"/>
+              </div>
+            </div>
+        }
       </div>
   );
 }
@@ -170,6 +189,7 @@ Dashboard.propTypes = {
     submit: PropTypes.string.isRequired,
     container: PropTypes.string.isRequired,
     textField: PropTypes.string.isRequired,
+    image: PropTypes.string.isRequired
   }).isRequired,
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
