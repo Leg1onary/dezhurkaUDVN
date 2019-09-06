@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { fade } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -17,6 +17,8 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import PropTypes from "prop-types";
 import withStyles from "@material-ui/core/styles/withStyles";
 import {withRouter} from "react-router-dom";
+import {useFirebase} from "../../Firebase";
+import * as ROUTES from "../../constants/routes";
 
 const styles = theme => ({
     grow: {
@@ -82,7 +84,20 @@ const styles = theme => ({
 
 function NavBar(props) {
 
-    const { classes } = props;
+    const { classes, history } = props;
+    const useFB = useFirebase();
+    const user = useFB.getCurrentUser();
+
+    useEffect(() => {
+        if (!user) {
+            // not logged in
+            // history.replace(ROUTES.LOGIN)
+            history.push({
+                pathname: ROUTES.LOGIN,
+                search: '?unauthorized_user=1',
+            });
+        }
+    }, [useFB, history, user]);
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -108,6 +123,7 @@ function NavBar(props) {
     }
 
     async function Logout() {
+        await useFB.doSignOut();
         handleMenuClose();
     }
 

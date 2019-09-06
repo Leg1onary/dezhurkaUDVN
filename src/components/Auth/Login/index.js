@@ -77,7 +77,7 @@ function Login(props) {
   useEffect(() => {
     const searchUrl = history.location.search;
     const searchParams = queryString.parse(searchUrl);
-    if (searchParams.from_dashboard || searchParams.from_home) {
+    if (searchParams.unauthorized_user) {
       setWarningOpen(true);
       setWarningMessage('Для начала авторизуйтесь!');
     }

@@ -7,7 +7,6 @@ import withStyles from '@material-ui/core/styles/withStyles';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
-import * as ROUTES from '../../constants/routes';
 import { useFirebase } from '../../Firebase';
 import NavBar from "../NavBar";
 import TextField from "@material-ui/core/TextField";
@@ -52,22 +51,12 @@ const styles = theme => ({
 });
 
 function Dashboard(props) {
-  const { classes, history } = props;
+  const { classes } = props;
 
   const useFB = useFirebase();
   const user = useFB.getCurrentUser();
   const [todoTitle, setTodoTitle] = useState('');
 
-  useEffect(() => {
-    if (!user) {
-      // not logged in
-      // history.replace(ROUTES.LOGIN)
-      history.push({
-        pathname: ROUTES.LOGIN,
-        search: '?from_dashboard=1',
-      });
-    }
-  }, [useFB, history, user]);
 
   function useTodos() {
     const [todoList, setTodoList] = useState([]);
@@ -75,7 +64,7 @@ function Dashboard(props) {
       const unsub = firebase
           .firestore()
           .collection('todos')
-          .orderBy('dateAdd', 'desc')
+          .orderBy('isComplete').orderBy('dateAdd', 'desc')
           .onSnapshot((snapshot) => {
             const newTodos = snapshot.docs.map((doc) => ({
               id: doc.id,

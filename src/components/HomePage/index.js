@@ -51,7 +51,7 @@ function HomePage(props) {
       // history.replace(ROUTES.LOGIN)
       history.push({
         pathname: ROUTES.LOGIN,
-        search: '?from_home=1',
+        search: '?unauthorized_user=1',
       });
     }
   }, [firebase, history, user]);
