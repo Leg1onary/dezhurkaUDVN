@@ -1,14 +1,27 @@
 import React from 'react';
+import PropTypes from "prop-types";
+/*Material UI*/
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel';
+import StepContent from '@material-ui/core/StepContent';
 import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import PropTypes from "prop-types";
 import withStyles from "@material-ui/core/styles/withStyles";
+/*ICONS*/
+import DescriptionIcon from '@material-ui/icons/Description';
+import BusinessIcon from '@material-ui/icons/Business';
+import ContactPhoneIcon from '@material-ui/icons/ContactPhone';
+import VoiceChatIcon from '@material-ui/icons/VoiceChat';
+import NetworkCheckIcon from '@material-ui/icons/NetworkCheck';
+import InfoIcon from '@material-ui/icons/Info';
+import ListAltIcon from '@material-ui/icons/ListAlt';
 
+/*KLADR*/
 import { ReactDadata } from 'react-dadata';
-import TextField from "@material-ui/core/TextField";
-import StepButton from "@material-ui/core/StepButton";
+import {useFirebase} from "../../Firebase";
+
 const API_KEY_DADATA = '06bb5a438e1971e7f6c99d0e32cccc7b11c6da91';
 
 const styles = theme => ({
@@ -25,15 +38,13 @@ const styles = theme => ({
     resetContainer: {
         padding: theme.spacing(3),
     },
-    instructions: {
-        marginTop: theme.spacing(1),
-        marginBottom: theme.spacing(1),
+    active: {
+        backgroundImage: 'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
     },
+    completed: {
+        backgroundImage: 'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
+        },
 });
-
-function getSteps() {
-    return ['Причина проведения работ', 'Адрес установки камер', 'Завершение'];
-}
 
 let CMS_DATA = {
     description: '',
@@ -43,149 +54,161 @@ let CMS_DATA = {
         sn: '',
         model: ''
     },
-    orgName: '',
-    orgILS: '',
-    orgEmail: '',
+    orgInfo: {
+        Name: '',
+        ILS: '',
+        Email: '',
+    },
     contacts: {
         fio: '',
         telephone: ''
     }
+};
 
+function getSteps() {
+    return ['Описание проблемы', 'Данные организации', 'Информация по камере(-ам)', 'Интернет', 'Адрес установки камер(-ы)', 'Контактные данные', 'Формирование заявки'];
 }
 
 function getStepContent(step) {
     switch (step) {
-
         case 0:
             return (
-                <TextField
-                    id="outlined-full-width"
-                    style={{ margin: 8 }}
-                    placeholder="Краткое описание проблемы..."
-                    fullWidth
-                    margin="normal"
-                    variant="outlined"
-                    onChange={event => CMS_DATA.description = event.currentTarget.value}
-                />
+                <div id="Description">
+                    Описание проблемы
+                </div>
             );
         case 1:
             return (
-                <ReactDadata token={API_KEY_DADATA} onChange={event => CMS_DATA.address = event.value}/>
+                <div id="OrganizationInfo">
+                    <h3>Данные организации</h3>
+                </div>
             );
         case 2:
             return (
-                `Данные для CMS успешно сформированы.`
+                <div id="CamerasInfo">
+                    <h3>Информация по камере(-ам)</h3>
+                </div>
+            );
+        case 3:
+            return (
+                <div id="Internet">
+                    <h3>Данные по интернету</h3>
+                </div>
+            );
+        case 4:
+            return (
+                <div id="Address">
+                    <h3> Адрес установки камер </h3>
+                    <ReactDadata token={API_KEY_DADATA} onChange={event => CMS_DATA.address = event.value}/>
+                </div>
+            );
+        case 5:
+            return (
+                <div id="Contacts">
+                    <h3>Контактные данные</h3>
+                </div>
+            );
+        case 6:
+            return (
+                <div id="CompleteActions">
+                    <h3>Данные для заявки успешно сохранены</h3>
+                </div>
             );
         default:
-            return 'Unknown step';
+            return 'Неизвестный шаг';
     }
 }
 
 function CmsBlock(props) {
 
     const { classes } = props;
-
-    /* STEPS */
+    const useFB = useFirebase();
     const [activeStep, setActiveStep] = React.useState(0);
-    const [completed, setCompleted] = React.useState({});
     const steps = getSteps();
 
-    function totalSteps() {
-        return steps.length;
-    }
-
-    function completedSteps() {
-        return Object.keys(completed).length;
-    }
-
-    function isLastStep() {
-        return activeStep === totalSteps() - 1;
-    }
-
-    function allStepsCompleted() {
-        return completedSteps() === totalSteps();
-    }
-
     function handleNext() {
-        const newActiveStep =
-            isLastStep() && !allStepsCompleted()
-                ? // It's the last step, but not all steps have been completed,
-                  // find the first step that has been completed
-                steps.findIndex((step, i) => !(i in completed))
-                : activeStep + 1;
-        setActiveStep(newActiveStep);
+        setActiveStep(prevActiveStep => prevActiveStep + 1);
     }
 
     function handleBack() {
         setActiveStep(prevActiveStep => prevActiveStep - 1);
     }
 
-    const handleStep = step => () => {
-        setActiveStep(step);
-    };
-
-    function handleComplete() {
-        const newCompleted = completed;
-        newCompleted[activeStep] = true;
-        setCompleted(newCompleted);
-        handleNext();
-    }
-
     function handleReset() {
         setActiveStep(0);
-        setCompleted({});
+    }
+
+    const icons = {
+        1: <DescriptionIcon />,
+        2: <BusinessIcon />,
+        3: <VoiceChatIcon/>,
+        4: <NetworkCheckIcon/>,
+        5: <InfoIcon/>,
+        6: <ContactPhoneIcon />,
+        7: <ListAltIcon />
+    };
+
+    async function addToCmsHistory(data) {
+        try {
+            await useFB.doAddCmsHistory(data);
+            setActiveStep(prevActiveStep => prevActiveStep + 1);
+        } catch(error) {
+            // eslint-disable-next-line no-console
+            console.log(error)
+        }
     }
 
     return (
-        <div id="CmsBlockCreate">
-            <div className={classes.root}>
-                <Stepper nonLinear activeStep={activeStep}>
-                    {steps.map((label, index) => (
-                        <Step key={label}>
-                            <StepButton onClick={handleStep(index)} completed={completed[index]}>
-                                {label}
-                            </StepButton>
-                        </Step>
-                    ))}
-                </Stepper>
-                <div>
-                    {allStepsCompleted() ? (
-                        <div>
-                            <Typography className={classes.instructions}>
-                                All steps completed - you&apos;re finished
-                            </Typography>
-                            <Button onClick={handleReset}>Reset</Button>
-                        </div>
-                    ) : (
-                        <div>
-                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
-                            <div>
-                                <Button disabled={activeStep === 0} onClick={handleBack} className={classes.button}>
-                                    Back
-                                </Button>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={handleNext}
-                                    className={classes.button}
-                                >
-                                    Next
-                                </Button>
-                                {activeStep !== steps.length &&
-                                (completed[activeStep] ? (
-                                    <Typography variant="caption">
-                                        Step {activeStep + 1} already completed
-                                    </Typography>
-                                ) : (
-                                    <Button variant="contained" color="primary" onClick={handleComplete}>
-                                        {completedSteps() === totalSteps() - 1 ? 'Finish' : 'Complete Step'}
+        <div id="CreateCMS">
+        <div className={classes.root}>
+            <Stepper activeStep={activeStep} orientation="vertical">
+                {steps.map((label, index) => (
+                    <Step key={label}>
+                        <StepLabel >{label}</StepLabel>
+                        <StepContent>
+                            <Typography component={'span'} variant={'body2'}>{getStepContent(index)}</Typography>
+                            <div className={classes.actionsContainer}>
+                                <div>
+                                    <Button
+                                        disabled={activeStep === 0}
+                                        onClick={handleBack}
+                                        className={classes.button}
+                                    >
+                                        Назад
                                     </Button>
-                                ))}
+                                    {activeStep === steps.length - 1 ?
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => addToCmsHistory(CMS_DATA)}
+                                            className={classes.button}
+                                        >
+                                            Сформировать
+                                        </Button> :
+                                        <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleNext}
+                                        className={classes.button}
+                                        >
+                                            Далее
+                                        </Button>
+                                    }
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+                        </StepContent>
+                    </Step>
+                ))}
+            </Stepper>
+            {activeStep === steps.length && (
+                <Paper square elevation={0} className={classes.resetContainer}>
+                    <Typography>Здесь будет выводиться информация для заявки</Typography>
+                    <Button onClick={handleReset} className={classes.button}>
+                        Сбросить
+                    </Button>
+                </Paper>
+            )}
+        </div>
         </div>
     );
 }
@@ -196,8 +219,8 @@ CmsBlock.propTypes = {
         button: PropTypes.string.isRequired,
         actionsContainer: PropTypes.string.isRequired,
         root: PropTypes.string.isRequired,
-        instructions: PropTypes.string.isRequired
-    }).isRequired
+    }).isRequired,
+
 };
 
 export default withStyles(styles)(CmsBlock);

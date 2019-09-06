@@ -85,6 +85,26 @@ class Firebase {
           console.error("Ошибка добавления документа: ", error);
         });
   }
+
+  doAddCmsHistory(data){
+    this.store.collection("cmsHistory").add({
+      cmsNumber: '',
+      dateAddCms: moment().format("HH:mm DD/MM/YYYY"),
+      orgAddress: data.address,
+      orgEmail: data.orgInfo.Email,
+      orgTitle: data.orgInfo.Name,
+      orgILS: data.orgInfo.ILS,
+
+    })
+        .then(function(docRef) {
+          // eslint-disable-next-line no-console
+          console.log("Документ добавлен с ID: ", docRef.id);
+        })
+        .catch(function(error) {
+          // eslint-disable-next-line no-console
+          console.error("Ошибка добавления документа: ", error);
+        });
+  }
   doDeleteTodo(key) {
     this.store.collection("todos").doc(key).delete().then(function() {
       // eslint-disable-next-line no-console

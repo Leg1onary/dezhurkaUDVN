@@ -105,6 +105,7 @@ function Dashboard(props) {
   }
 
   const Todos = useTodos();
+
   return (
       <div id="Dashboard">
         <NavBar/>
