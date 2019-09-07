@@ -9,18 +9,10 @@ import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from "@material-ui/core/styles/withStyles";
-/*ICONS*/
-import DescriptionIcon from '@material-ui/icons/Description';
-import BusinessIcon from '@material-ui/icons/Business';
-import ContactPhoneIcon from '@material-ui/icons/ContactPhone';
-import VoiceChatIcon from '@material-ui/icons/VoiceChat';
-import NetworkCheckIcon from '@material-ui/icons/NetworkCheck';
-import InfoIcon from '@material-ui/icons/Info';
-import ListAltIcon from '@material-ui/icons/ListAlt';
-
 /*KLADR*/
 import { ReactDadata } from 'react-dadata';
 import {useFirebase} from "../../Firebase";
+import TextField from "@material-ui/core/TextField";
 
 const API_KEY_DADATA = '06bb5a438e1971e7f6c99d0e32cccc7b11c6da91';
 
@@ -50,19 +42,19 @@ let CMS_DATA = {
     description: '',
     address: '',
     internet: '',
-    cameras: {
+    cameras: [{
         sn: '',
         model: ''
-    },
+    }],
     orgInfo: {
         Name: '',
         ILS: '',
         Email: '',
     },
-    contacts: {
+    contacts: [{
         fio: '',
         telephone: ''
-    }
+    }]
 };
 
 function getSteps() {
@@ -74,13 +66,52 @@ function getStepContent(step) {
         case 0:
             return (
                 <div id="Description">
-                    Описание проблемы
+                    <Button onClick={() => console.log(CMS_DATA)}>Click</Button>
+                    <TextField
+                        id="outlined-full-width"
+                        label="Краткое описание проблемы..."
+                        style={{ margin: 8 }}
+                        fullWidth
+                        margin="normal"
+                        variant="outlined"
+                        multiline
+                        onChange={event => CMS_DATA.description = event.target.value}
+                    />
                 </div>
             );
         case 1:
             return (
                 <div id="OrganizationInfo">
-                    <h3>Данные организации</h3>
+                    <TextField
+                        id="outlined-full-width"
+                        label="Название организации"
+                        style={{ margin: 8 }}
+                        fullWidth
+                        margin="normal"
+                        variant="outlined"
+                        multiline
+                        onChange={e => CMS_DATA.orgInfo.Name = e.currentTarget.value}
+                    />
+                    <TextField
+                        id="outlined-full-width"
+                        label="email"
+                        style={{ margin: 8 }}
+                        fullWidth
+                        margin="normal"
+                        variant="outlined"
+                        multiline
+                        onChange={e => CMS_DATA.orgInfo.Email = e.target.value}
+                    />
+                    <TextField
+                        id="outlined-full-width"
+                        label="ИЛС"
+                        style={{ margin: 8 }}
+                        fullWidth
+                        margin="normal"
+                        variant="outlined"
+                        multiline
+                        onChange={e => CMS_DATA.orgInfo.ILS = e.target.value}
+                    />
                 </div>
             );
         case 2:
@@ -92,7 +123,7 @@ function getStepContent(step) {
         case 3:
             return (
                 <div id="Internet">
-                    <h3>Данные по интернету</h3>
+                    <h3>Интернет Ростелеком?</h3>
                 </div>
             );
         case 4:
@@ -120,7 +151,6 @@ function getStepContent(step) {
 }
 
 function CmsBlock(props) {
-
     const { classes } = props;
     const useFB = useFirebase();
     const [activeStep, setActiveStep] = React.useState(0);
@@ -137,16 +167,6 @@ function CmsBlock(props) {
     function handleReset() {
         setActiveStep(0);
     }
-
-    const icons = {
-        1: <DescriptionIcon />,
-        2: <BusinessIcon />,
-        3: <VoiceChatIcon/>,
-        4: <NetworkCheckIcon/>,
-        5: <InfoIcon/>,
-        6: <ContactPhoneIcon />,
-        7: <ListAltIcon />
-    };
 
     async function addToCmsHistory(data) {
         try {
