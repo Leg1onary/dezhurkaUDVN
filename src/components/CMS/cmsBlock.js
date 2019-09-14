@@ -13,9 +13,10 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import { ReactDadata } from 'react-dadata';
 import {useFirebase} from "../../Firebase";
 import TextField from "@material-ui/core/TextField";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import {Table, TableBody, TableCell, TableHead, TableRow} from "@material-ui/core";
 
 const API_KEY_DADATA = '06bb5a438e1971e7f6c99d0e32cccc7b11c6da91';
-
 const styles = theme => ({
     root: {
         width: '100%',
@@ -37,15 +38,11 @@ const styles = theme => ({
         backgroundImage: 'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
         },
 });
-
 let CMS_DATA = {
     description: '',
     address: '',
     internet: '',
-    cameras: [{
-        sn: '',
-        model: ''
-    }],
+    cameras: [],
     orgInfo: {
         Name: '',
         ILS: '',
@@ -56,12 +53,18 @@ let CMS_DATA = {
         telephone: ''
     }]
 };
+let cameraInfo = '';
+let modelInfo = '';
 
 function getSteps() {
     return ['Описание проблемы', 'Данные организации', 'Информация по камере(-ам)', 'Интернет', 'Адрес установки камер(-ы)', 'Контактные данные', 'Формирование заявки'];
 }
-
 function getStepContent(step) {
+
+    function addCameraInfo(camera, model) {
+        CMS_DATA.cameras.push({camera, model})
+    }
+
     switch (step) {
         case 0:
             return (
@@ -118,6 +121,28 @@ function getStepContent(step) {
             return (
                 <div id="CamerasInfo">
                     <h3>Информация по камере(-ам)</h3>
+                    <TextField
+                        label="S/N камеры"
+                        style={{ margin: 8 }}
+                        margin="normal"
+                        variant="outlined"
+                        onChange={event => cameraInfo = event.target.value}
+                    />
+                    <TextField
+                        label="Модель"
+                        style={{ margin: 8 }}
+                        margin="normal"
+                        variant="outlined"
+                        onChange={event => modelInfo = event.target.value}
+                    />
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        style={{ margin: 8 }}
+                        onClick={() => addCameraInfo(cameraInfo, modelInfo)}
+                    >
+                        Еще камера
+                    </Button>
                 </div>
             );
         case 3:
@@ -154,24 +179,29 @@ function CmsBlock(props) {
     const { classes } = props;
     const useFB = useFirebase();
     const [activeStep, setActiveStep] = React.useState(0);
+    const [completeProgress, setCompleteProgress] = React.useState(0);
     const steps = getSteps();
 
     function handleNext() {
         setActiveStep(prevActiveStep => prevActiveStep + 1);
+        setCompleteProgress(prevCompleteProgress => prevCompleteProgress + 14.3);
     }
 
     function handleBack() {
         setActiveStep(prevActiveStep => prevActiveStep - 1);
+        setCompleteProgress(prevCompleteProgress => prevCompleteProgress - 14.3);
     }
 
     function handleReset() {
         setActiveStep(0);
+        setCompleteProgress(0);
     }
 
     async function addToCmsHistory(data) {
         try {
             await useFB.doAddCmsHistory(data);
             setActiveStep(prevActiveStep => prevActiveStep + 1);
+            setCompleteProgress(prevCompleteProgress => prevCompleteProgress + 14.3);
         } catch(error) {
             // eslint-disable-next-line no-console
             console.log(error)
@@ -180,6 +210,7 @@ function CmsBlock(props) {
 
     return (
         <div id="CreateCMS">
+            <LinearProgress variant="determinate" value={completeProgress}/>
         <div className={classes.root}>
             <Stepper activeStep={activeStep} orientation="vertical">
                 {steps.map((label, index) => (
