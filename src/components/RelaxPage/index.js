@@ -6,7 +6,8 @@ function RelaxPage() {
     return (
         <div>
             <NavBar/>
-            for info : https://streamich.github.io/react-use/?path=/story/state-creatememo--docs
+            for info : 1) https://streamich.github.io/react-use/?path=/story/state-creatememo--docs
+            2) https://yohoho.cc/
         </div>
     );
 }

@@ -14,7 +14,6 @@ import { ReactDadata } from 'react-dadata';
 import {useFirebase} from "../../Firebase";
 import TextField from "@material-ui/core/TextField";
 import LinearProgress from "@material-ui/core/LinearProgress";
-import {Table, TableBody, TableCell, TableHead, TableRow} from "@material-ui/core";
 
 const API_KEY_DADATA = '06bb5a438e1971e7f6c99d0e32cccc7b11c6da91';
 const styles = theme => ({
@@ -69,6 +68,7 @@ function getStepContent(step) {
         case 0:
             return (
                 <div id="Description">
+                    {/* eslint-disable-next-line no-console */}
                     <Button onClick={() => console.log(CMS_DATA)}>Click</Button>
                     <TextField
                         id="outlined-full-width"
