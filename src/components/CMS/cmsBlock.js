@@ -35,7 +35,7 @@ const styles = theme => ({
     },
     completed: {
         backgroundImage: 'linear-gradient( 95deg,rgb(242,113,33) 0%,rgb(233,64,87) 50%,rgb(138,35,135) 100%)',
-        },
+    },
 });
 let CMS_DATA = {
     description: '',
@@ -55,124 +55,12 @@ let CMS_DATA = {
 let cameraInfo = '';
 let modelInfo = '';
 
+function addCameraInfo(camera, model) {
+    CMS_DATA.cameras.push({camera, model})
+}
+
 function getSteps() {
     return ['Описание проблемы', 'Данные организации', 'Информация по камере(-ам)', 'Интернет', 'Адрес установки камер(-ы)', 'Контактные данные', 'Формирование заявки'];
-}
-function getStepContent(step) {
-
-    function addCameraInfo(camera, model) {
-        CMS_DATA.cameras.push({camera, model})
-    }
-
-    switch (step) {
-        case 0:
-            return (
-                <div id="Description">
-                    {/* eslint-disable-next-line no-console */}
-                    <Button onClick={() => console.log(CMS_DATA)}>Click</Button>
-                    <TextField
-                        id="outlined-full-width"
-                        label="Краткое описание проблемы..."
-                        style={{ margin: 8 }}
-                        fullWidth
-                        margin="normal"
-                        variant="outlined"
-                        multiline
-                        onChange={event => CMS_DATA.description = event.target.value}
-                    />
-                </div>
-            );
-        case 1:
-            return (
-                <div id="OrganizationInfo">
-                    <TextField
-                        id="outlined-full-width"
-                        label="Название организации"
-                        style={{ margin: 8 }}
-                        fullWidth
-                        margin="normal"
-                        variant="outlined"
-                        multiline
-                        onChange={e => CMS_DATA.orgInfo.Name = e.currentTarget.value}
-                    />
-                    <TextField
-                        id="outlined-full-width"
-                        label="email"
-                        style={{ margin: 8 }}
-                        fullWidth
-                        margin="normal"
-                        variant="outlined"
-                        multiline
-                        onChange={e => CMS_DATA.orgInfo.Email = e.target.value}
-                    />
-                    <TextField
-                        id="outlined-full-width"
-                        label="ИЛС"
-                        style={{ margin: 8 }}
-                        fullWidth
-                        margin="normal"
-                        variant="outlined"
-                        multiline
-                        onChange={e => CMS_DATA.orgInfo.ILS = e.target.value}
-                    />
-                </div>
-            );
-        case 2:
-            return (
-                <div id="CamerasInfo">
-                    <h3>Информация по камере(-ам)</h3>
-                    <TextField
-                        label="S/N камеры"
-                        style={{ margin: 8 }}
-                        margin="normal"
-                        variant="outlined"
-                        onChange={event => cameraInfo = event.target.value}
-                    />
-                    <TextField
-                        label="Модель"
-                        style={{ margin: 8 }}
-                        margin="normal"
-                        variant="outlined"
-                        onChange={event => modelInfo = event.target.value}
-                    />
-                    <Button
-                        variant="contained"
-                        color="secondary"
-                        style={{ margin: 8 }}
-                        onClick={() => addCameraInfo(cameraInfo, modelInfo)}
-                    >
-                        Еще камера
-                    </Button>
-                </div>
-            );
-        case 3:
-            return (
-                <div id="Internet">
-                    <h3>Интернет Ростелеком?</h3>
-                </div>
-            );
-        case 4:
-            return (
-                <div id="Address">
-                    <h3> Адрес установки камер </h3>
-                    <ReactDadata token={API_KEY_DADATA} onChange={event => CMS_DATA.address = event.value}/>
-                </div>
-            );
-        case 5:
-            return (
-                <div id="Contacts">
-                    <h3>Контактные данные</h3>
-                </div>
-            );
-        case 6:
-            return (
-                <div id="CompleteActions">
-                    <h3>Данные для заявки успешно сохранены</h3>
-                </div>
-            );
-        default:
-            return 'Неизвестный шаг';
-    }
 }
 
 function CmsBlock(props) {
@@ -180,23 +68,155 @@ function CmsBlock(props) {
     const useFB = useFirebase();
     const [activeStep, setActiveStep] = React.useState(0);
     const [completeProgress, setCompleteProgress] = React.useState(0);
-    const steps = getSteps();
+    const [cmsData, setCmsData] = React.useState({
+        description: '',
+        address: '',
+        internet: '',
+        cameras: [],
+        orgInfo: {
+            Name: '',
+            ILS: '',
+            Email: '',
+        },
+        contacts: [{
+            fio: '',
+            telephone: ''
+        }]
+    });
 
+    const handleChange = data => event => {
+        setCmsData({ ...cmsData, [data]: event.target.value });
+    };
+    const steps = getSteps();
+    function getStepContent(step) {
+
+        function addCameraInfo(camera, model) {
+            CMS_DATA.cameras.push({camera, model})
+        }
+
+        switch (step) {
+            case 0:
+                return (
+                    <div id="Description">
+                        {/* eslint-disable-next-line no-console */}
+                        <Button onClick={() => console.log(cmsData)}>Click</Button>
+                        <TextField
+                            id="outlined-full-width"
+                            label="Краткое описание проблемы..."
+                            style={{ margin: 8 }}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            multiline
+                            value={cmsData.description}
+                            onChange={handleChange('description')}
+                        />
+                    </div>
+                );
+            case 1:
+                return (
+                    <div id="OrganizationInfo">
+                        <TextField
+                            id="outlined-full-width"
+                            label="Название организации"
+                            style={{ margin: 8 }}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            multiline
+                            onChange={e => CMS_DATA.orgInfo.Name = e.currentTarget.value}
+                        />
+                        <TextField
+                            id="outlined-full-width"
+                            label="email"
+                            style={{ margin: 8 }}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            multiline
+                            onChange={e => CMS_DATA.orgInfo.Email = e.target.value}
+                        />
+                        <TextField
+                            id="outlined-full-width"
+                            label="ИЛС"
+                            style={{ margin: 8 }}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            multiline
+                            onChange={e => CMS_DATA.orgInfo.ILS = e.target.value}
+                        />
+                    </div>
+                );
+            case 2:
+                return (
+                    <div id="CamerasInfo">
+                        <h3>Информация по камере(-ам)</h3>
+                        <TextField
+                            label="S/N камеры"
+                            style={{ margin: 8 }}
+                            margin="normal"
+                            variant="outlined"
+                            onChange={event => cameraInfo = event.target.value}
+                        />
+                        <TextField
+                            label="Модель"
+                            style={{ margin: 8 }}
+                            margin="normal"
+                            variant="outlined"
+                            onChange={event => modelInfo = event.target.value}
+                        />
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            style={{ margin: 8 }}
+                            onClick={() => addCameraInfo(cameraInfo, modelInfo)}
+                        >
+                            Еще камера
+                        </Button>
+                    </div>
+                );
+            case 3:
+                return (
+                    <div id="Internet">
+                        <h3>Интернет Ростелеком?</h3>
+                    </div>
+                );
+            case 4:
+                return (
+                    <div id="Address">
+                        <h3> Адрес установки камер </h3>
+                        <ReactDadata token={API_KEY_DADATA} onChange={event => CMS_DATA.address = event.value}/>
+                    </div>
+                );
+            case 5:
+                return (
+                    <div id="Contacts">
+                        <h3>Контактные данные</h3>
+                    </div>
+                );
+            case 6:
+                return (
+                    <div id="CompleteActions">
+                        <h3>Данные для заявки успешно сохранены</h3>
+                    </div>
+                );
+            default:
+                return 'Неизвестный шаг';
+        }
+    }
     function handleNext() {
         setActiveStep(prevActiveStep => prevActiveStep + 1);
         setCompleteProgress(prevCompleteProgress => prevCompleteProgress + 14.3);
     }
-
     function handleBack() {
         setActiveStep(prevActiveStep => prevActiveStep - 1);
         setCompleteProgress(prevCompleteProgress => prevCompleteProgress - 14.3);
     }
-
     function handleReset() {
         setActiveStep(0);
         setCompleteProgress(0);
     }
-
     async function addToCmsHistory(data) {
         try {
             await useFB.doAddCmsHistory(data);
@@ -211,55 +231,58 @@ function CmsBlock(props) {
     return (
         <div id="CreateCMS">
             <LinearProgress variant="determinate" value={completeProgress}/>
-        <div className={classes.root}>
-            <Stepper activeStep={activeStep} orientation="vertical">
-                {steps.map((label, index) => (
-                    <Step key={label}>
-                        <StepLabel >{label}</StepLabel>
-                        <StepContent>
-                            <Typography component={'span'} variant={'body2'}>{getStepContent(index)}</Typography>
-                            <div className={classes.actionsContainer}>
-                                <div>
-                                    <Button
-                                        disabled={activeStep === 0}
-                                        onClick={handleBack}
-                                        className={classes.button}
-                                    >
-                                        Назад
-                                    </Button>
-                                    {activeStep === steps.length - 1 ?
+            <div className={classes.root}>
+                <Stepper activeStep={activeStep} orientation="vertical">
+                    {steps.map((label, index) => (
+                        <Step key={label}>
+                            <StepLabel >{label}</StepLabel>
+                            <StepContent>
+                                <Typography component={'span'} variant={'body2'}>
+                                    {label}, {index}
+                                    {getStepContent(index)}
+                                </Typography>
+                                <div className={classes.actionsContainer}>
+                                    <div>
                                         <Button
-                                            variant="contained"
-                                            color="primary"
-                                            onClick={() => addToCmsHistory(CMS_DATA)}
+                                            disabled={activeStep === 0}
+                                            onClick={handleBack}
                                             className={classes.button}
                                         >
-                                            Сформировать
-                                        </Button> :
-                                        <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={handleNext}
-                                        className={classes.button}
-                                        >
-                                            Далее
+                                            Назад
                                         </Button>
-                                    }
+                                        {activeStep === steps.length - 1 ?
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => addToCmsHistory(CMS_DATA)}
+                                                className={classes.button}
+                                            >
+                                                Сформировать
+                                            </Button> :
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={handleNext}
+                                                className={classes.button}
+                                            >
+                                                Далее
+                                            </Button>
+                                        }
+                                    </div>
                                 </div>
-                            </div>
-                        </StepContent>
-                    </Step>
-                ))}
-            </Stepper>
-            {activeStep === steps.length && (
-                <Paper square elevation={0} className={classes.resetContainer}>
-                    <Typography>Здесь будет выводиться информация для заявки</Typography>
-                    <Button onClick={handleReset} className={classes.button}>
-                        Сбросить
-                    </Button>
-                </Paper>
-            )}
-        </div>
+                            </StepContent>
+                        </Step>
+                    ))}
+                </Stepper>
+                {activeStep === steps.length && (
+                    <Paper square elevation={0} className={classes.resetContainer}>
+                        <Typography>Здесь будет выводиться информация для заявки</Typography>
+                        <Button onClick={handleReset} className={classes.button}>
+                            Сбросить
+                        </Button>
+                    </Paper>
+                )}
+            </div>
         </div>
     );
 }
