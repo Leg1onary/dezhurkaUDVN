@@ -55,9 +55,6 @@ let CMS_DATA = {
 let cameraInfo = '';
 let modelInfo = '';
 
-function addCameraInfo(camera, model) {
-    CMS_DATA.cameras.push({camera, model})
-}
 
 function getSteps() {
     return ['Описание проблемы', 'Данные организации', 'Информация по камере(-ам)', 'Интернет', 'Адрес установки камер(-ы)', 'Контактные данные', 'Формирование заявки'];
@@ -73,19 +70,30 @@ function CmsBlock(props) {
         address: '',
         internet: '',
         cameras: [],
-        orgInfo: {
-            Name: '',
-            ILS: '',
-            Email: '',
-        },
+        orgInfoName: '',
+        orgInfoILS: '',
+        orgInfoEmail: '',
         contacts: [{
             fio: '',
             telephone: ''
         }]
     });
 
-    const handleChange = data => event => {
+    function pushToCmsData(dataInfo) {
+        cmsData.contacts.push(dataInfo);
+        setContactsData({
+            fio: '',
+            telephone: ''
+        });
+        console.log(cmsData)
+    }
+        const handleChange = data => event => {
         setCmsData({ ...cmsData, [data]: event.target.value });
+    };
+
+    const [contactsData, setContactsData] = React.useState({});
+    const handleChangeContacts = data => event => {
+        setContactsData({ ...contactsData, [data]: event.target.value });
     };
     const steps = getSteps();
     function getStepContent(step) {
@@ -99,10 +107,10 @@ function CmsBlock(props) {
                 return (
                     <div id="Description">
                         {/* eslint-disable-next-line no-console */}
-                        <Button onClick={() => console.log(cmsData)}>Click</Button>
+                        <Button onClick={() => pushToCmsData(contactsData)}>Click</Button>
                         <TextField
                             id="outlined-full-width"
-                            label="Краткое описание проблемы..."
+                            label="Краткое описание проблемы"
                             style={{ margin: 8 }}
                             fullWidth
                             margin="normal"
@@ -110,6 +118,28 @@ function CmsBlock(props) {
                             multiline
                             value={cmsData.description}
                             onChange={handleChange('description')}
+                        />
+                        <TextField
+                            id="outlined-full-width"
+                            label="ФИО"
+                            style={{ margin: 8 }}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            multiline
+                            value={contactsData.fio}
+                            onChange={handleChangeContacts('fio')}
+                        />
+                        <TextField
+                            id="outlined-full-width"
+                            label="Телефон"
+                            style={{ margin: 8 }}
+                            fullWidth
+                            margin="normal"
+                            variant="outlined"
+                            multiline
+                            value={contactsData.telephone}
+                            onChange={handleChangeContacts('telephone')}
                         />
                     </div>
                 );
@@ -124,7 +154,8 @@ function CmsBlock(props) {
                             margin="normal"
                             variant="outlined"
                             multiline
-                            onChange={e => CMS_DATA.orgInfo.Name = e.currentTarget.value}
+                            value={cmsData.orgInfoName}
+                            onChange={handleChange('orgInfoName')}
                         />
                         <TextField
                             id="outlined-full-width"
@@ -134,7 +165,8 @@ function CmsBlock(props) {
                             margin="normal"
                             variant="outlined"
                             multiline
-                            onChange={e => CMS_DATA.orgInfo.Email = e.target.value}
+                            value={cmsData.orgInfoEmail}
+                            onChange={handleChange('orgInfoEmail')}
                         />
                         <TextField
                             id="outlined-full-width"
@@ -144,7 +176,8 @@ function CmsBlock(props) {
                             margin="normal"
                             variant="outlined"
                             multiline
-                            onChange={e => CMS_DATA.orgInfo.ILS = e.target.value}
+                            value={cmsData.orgInfoILS}
+                            onChange={handleChange('orgInfoILS')}
                         />
                     </div>
                 );
@@ -238,7 +271,6 @@ function CmsBlock(props) {
                             <StepLabel >{label}</StepLabel>
                             <StepContent>
                                 <Typography component={'span'} variant={'body2'}>
-                                    {label}, {index}
                                     {getStepContent(index)}
                                 </Typography>
                                 <div className={classes.actionsContainer}>
